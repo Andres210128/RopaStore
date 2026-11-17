@@ -1,4 +1,5 @@
-﻿from django.shortcuts import render, redirect, get_object_or_404
+﻿# Prueba de sincronizacion con GitHub
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.views.decorators.http import require_POST
