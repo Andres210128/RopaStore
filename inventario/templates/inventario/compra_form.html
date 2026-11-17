@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva compra - RopaStore</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .fila {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        button, .btn {
+            border: none;
+            padding: 11px 17px;
+            border-radius: 7px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .acciones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .mensajes {
+            padding: 12px;
+            background: #fef2f2;
+            border-radius: 7px;
+            margin-bottom: 15px;
+        }
+
+        @media(max-width: 700px) {
+            .fila {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 10px;
+                padding: 17px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+    </style>
+    {% include "inventario/_sidebar_styles.html" %}
+</head>
+
+<body>
+
+<div class="layout">
+{% include "inventario/_sidebar.html" %}
+<main class="main-area">
+<div class="container">
+
+    <h1>Registrar nueva compra</h1>
+    <p>Registra los productos adquiridos para aumentar el inventario.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mensajes">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" id="formCompra">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Proveedor</label>
+            {{ compra_form.proveedor }}
+        </div>
+
+        <div class="form-group">
+            <label>Observaciones</label>
+            {{ compra_form.observaciones }}
+        </div>
+
+        <h3>Productos de la compra</h3>
+
+        <div class="fila">
+
+            <div>
+                <label>Producto</label>
+                <select id="producto">
+                    <option value="">Seleccionar producto</option>
+
+                    {% for p in productos %}
+                        <option
+                            value="{{ p.id }}"
+                            data-nombre="{{ p.nombre }}"
+                            data-codigo="{{ p.codigo }}"
+                        >
+                            {{ p.codigo }} - {{ p.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Cantidad</label>
+                <input type="number" id="cantidad" min="1" value="1">
+            </div>
+
+            <div>
+                <label>Costo unitario ($)</label>
+                <input type="number" id="costo" min="0.01" step="0.01">
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="agregarProducto()">
+                Agregar
+            </button>
+
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Costo unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProductos">
+                <tr id="vacio">
+                    <td colspan="5">Todavía no has agregado productos.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total">
+            Total: $<span id="total">0.00</span>
+        </div>
+
+        <div id="camposOcultos"></div>
+
+        <div class="acciones">
+            <a href="{% url 'compras' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-success">
+                Registrar compra
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    let productosCompra = [];
+
+    function agregarProducto() {
+        const selector = document.getElementById("producto");
+        const cantidad = parseInt(document.getElementById("cantidad").value);
+        const costo = parseFloat(document.getElementById("costo").value);
+
+        const opcion = selector.options[selector.selectedIndex];
+
+        if (!selector.value) {
+            alert("Selecciona un producto.");
+            return;
+        }
+
+        if (!Number.isInteger(cantidad) || cantidad <= 0) {
+            alert("Ingresa una cantidad válida.");
+            return;
+        }
+
+        if (!Number.isFinite(costo) || costo <= 0) {
+            alert("Ingresa un costo válido.");
+            return;
+        }
+
+        productosCompra.push({
+            id: selector.value,
+            nombre: opcion.dataset.nombre,
+            cantidad: cantidad,
+            costo: costo
+        });
+
+        actualizarTabla();
+
+        selector.value = "";
+        document.getElementById("cantidad").value = 1;
+        document.getElementById("costo").value = "";
+    }
+
+    function eliminarProducto(index) {
+        productosCompra.splice(index, 1);
+        actualizarTabla();
+    }
+
+    function actualizarTabla() {
+        const tabla = document.getElementById("tablaProductos");
+        const campos = document.getElementById("camposOcultos");
+
+        tabla.innerHTML = "";
+        campos.innerHTML = "";
+
+        let total = 0;
+
+        if (productosCompra.length === 0) {
+            tabla.innerHTML = `
+                <tr>
+                    <td colspan="5">Todavía no has agregado productos.</td>
+                </tr>
+            `;
+        }
+
+        productosCompra.forEach((p, index) => {
+            const subtotal = p.cantidad * p.costo;
+            total += subtotal;
+
+            tabla.innerHTML += `
+                <tr>
+                    <td>${p.nombre}</td>
+                    <td>${p.cantidad}</td>
+                    <td>$${p.costo.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                    <td>
+                        <button type="button"
+                            class="btn btn-danger"
+                            onclick="eliminarProducto(${index})">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+            campos.innerHTML += `
+                <input type="hidden" name="producto" value="${p.id}">
+                <input type="hidden" name="cantidad" value="${p.cantidad}">
+                <input type="hidden" name="costo_unitario" value="${p.costo}">
+            `;
+        });
+
+        document.getElementById("total").textContent = total.toFixed(2);
+    }
+
+    document.getElementById("formCompra").addEventListener("submit", function(e) {
+        if (productosCompra.length === 0) {
+            e.preventDefault();
+            alert("Agrega al menos un producto a la compra.");
+        }
+    });
+</script>
+</main>
+</div>
+</body>
+</html>

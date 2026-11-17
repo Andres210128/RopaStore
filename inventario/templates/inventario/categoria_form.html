@@ -1,0 +1,103 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} | RopaStore</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fa;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 850px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,.06);
+        }
+        h1 { margin-top: 0; }
+        .subtitle { color: #64748b; margin-bottom: 30px; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 18px 0 8px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+        input:focus, textarea:focus {
+            outline: 2px solid #2563eb;
+            border-color: #2563eb;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .primary { background: #2563eb; color: white; }
+        .secondary { background: #e2e8f0; color: #334155; }
+        .errorlist { color: #dc2626; }
+        .helptext { color: #64748b; font-size: 13px; }
+        @media(max-width:600px) {
+            .container { margin: 15px auto; }
+            .card { padding: 22px; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+    {% include "inventario/_sidebar_styles.html" %}
+</head>
+<body>
+    <div class="layout">
+        {% include "inventario/_sidebar.html" %}
+        <main class="main-area">
+    <div class="container">
+        <section class="card">
+            <h1>{{ titulo }}</h1>
+            <p class="subtitle">Administra las categorías de productos de RopaStore.</p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {{ formulario.non_field_errors }}
+
+                <label for="{{ formulario.nombre.id_for_label }}">Nombre de la categoría</label>
+                {{ formulario.nombre }}
+                {{ formulario.nombre.errors }}
+
+                <label for="{{ formulario.descripcion.id_for_label }}">Descripción</label>
+                {{ formulario.descripcion }}
+                {{ formulario.descripcion.errors }}
+
+                <div class="actions">
+                    <button type="submit" class="btn primary">Guardar categoría</button>
+                    <a href="{% url 'categorias' %}" class="btn secondary">Cancelar</a>
+                </div>
+            </form>
+        </section>
+        </div>
+        </main>
+    </div>
+</body>
+</html>

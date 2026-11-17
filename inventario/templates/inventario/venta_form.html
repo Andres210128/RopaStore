@@ -1,0 +1,419 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva venta | RopaStore</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6fb;
+            color: #1e293b;
+            padding: 30px;
+        }
+
+        .contenedor {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #64748b;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px #0000000b;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dbe1ea;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .fila {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .eliminar {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .agregar {
+            background: #2563eb;
+        }
+
+        .guardar {
+            background: #16a34a;
+            padding: 14px 25px;
+            font-size: 16px;
+        }
+
+        .totales {
+            max-width: 350px;
+            margin-left: auto;
+            margin-top: 20px;
+        }
+
+        .total-fila {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+        }
+
+        .total-final {
+            font-size: 24px;
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .mensaje {
+            background: #fee2e2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media(max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .fila {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
+    {% include "inventario/_sidebar_styles.html" %}
+</head>
+
+<body>
+<div class="layout">
+{% include "inventario/_sidebar.html" %}
+<main class="main-area">
+<div class="contenedor">
+
+    <div class="encabezado">
+        <div>
+            <h1>Nueva venta</h1>
+            <p>Registrar productos y procesar una venta</p>
+        </div>
+
+        <a href="{% url 'ventas' %}" class="boton">Volver</a>
+    </div>
+
+    {% if messages %}
+        {% for mensaje in messages %}
+            <div class="mensaje">{{ mensaje }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="panel">
+            <h2>Información del cliente</h2>
+            <br>
+
+            <label>Nombre del cliente</label>
+            <input type="text" name="cliente"
+                   placeholder="Cliente general">
+            
+            <label>Método de pago</label>
+            <select name="metodo_pago">
+                {% for codigo, nombre in metodos_pago %}
+                    <option value="{{ codigo }}">{{ nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="panel">
+            <h2>Productos de la venta</h2>
+            <br>
+
+            <div class="fila">
+                <div>
+                    <label>Producto</label>
+                    <select id="producto">
+                        <option value="">Seleccionar producto</option>
+
+                        {% for producto in productos %}
+                            <option
+                                value="{{ producto.id }}"
+                                data-nombre="{{ producto.nombre }}"
+                                data-precio="{{ producto.precio_sugerido }}"
+                                data-stock="{{ producto.stock }}">
+                                {{ producto.codigo }} - {{ producto.nombre }}
+                                | Stock: {{ producto.stock }}
+                                | ${{ producto.precio_sugerido }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidad"
+                           min="1" value="1">
+                </div>
+
+                <div>
+                    <button type="button"
+                            class="boton agregar"
+                            onclick="agregarProducto()">
+                        + Agregar
+                    </button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody id="detalle">
+                    <tr id="vacio">
+                        <td colspan="5">No hay productos agregados.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="totales">
+                <div class="total-fila">
+                    <span>Subtotal:</span>
+                    <strong id="subtotal">$0.00</strong>
+                </div>
+
+                <label>Descuento ($)</label>
+                <input type="number" name="descuento"
+                       id="descuento" value="0"
+                       min="0" step="0.01">
+
+                <div class="total-fila total-final">
+                    <span>Total:</span>
+                    <span id="total">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="boton guardar">
+            Confirmar venta
+        </button>
+    </form>
+</div>
+
+<script>
+    const productosVenta = [];
+
+    function agregarProducto() {
+        const selector = document.getElementById("producto");
+        const opcion = selector.options[selector.selectedIndex];
+        const cantidad = parseInt(
+            document.getElementById("cantidad").value
+        );
+
+        if (!selector.value) {
+            alert("Selecciona un producto.");
+            return;
+        }
+
+        if (!Number.isInteger(cantidad) || cantidad <= 0) {
+            alert("Ingresa una cantidad válida.");
+            return;
+        }
+
+        const id = parseInt(selector.value);
+        const stock = parseInt(opcion.dataset.stock);
+        const existente = productosVenta.find(p => p.id === id);
+
+        const cantidadFinal = cantidad +
+            (existente ? existente.cantidad : 0);
+
+        if (cantidadFinal > stock) {
+            alert("No hay suficiente stock disponible.");
+            return;
+        }
+
+        if (existente) {
+            existente.cantidad += cantidad;
+        } else {
+            productosVenta.push({
+                id: id,
+                nombre: opcion.dataset.nombre,
+                precio: parseFloat(opcion.dataset.precio),
+                stock: stock,
+                cantidad: cantidad
+            });
+        }
+
+        selector.value = "";
+        document.getElementById("cantidad").value = 1;
+
+        dibujarTabla();
+    }
+
+    function eliminarProducto(id) {
+        const indice = productosVenta.findIndex(p => p.id === id);
+        productosVenta.splice(indice, 1);
+        dibujarTabla();
+    }
+
+    function dibujarTabla() {
+        const tabla = document.getElementById("detalle");
+        tabla.innerHTML = "";
+
+        if (productosVenta.length === 0) {
+            tabla.innerHTML = `
+                <tr>
+                    <td colspan="5">No hay productos agregados.</td>
+                </tr>`;
+        }
+
+        let subtotal = 0;
+
+        productosVenta.forEach(p => {
+            const parcial = p.precio * p.cantidad;
+            subtotal += parcial;
+
+            tabla.innerHTML += `
+                <tr>
+                    <td>${p.nombre}
+                        <input type="hidden" name="producto"
+                               value="${p.id}">
+                    </td>
+                    <td>$${p.precio.toFixed(2)}</td>
+                    <td>
+                        ${p.cantidad}
+                        <input type="hidden" name="cantidad"
+                               value="${p.cantidad}">
+                    </td>
+                    <td>$${parcial.toFixed(2)}</td>
+                    <td>
+                        <button type="button"
+                                class="eliminar"
+                                onclick="eliminarProducto(${p.id})">
+                            Quitar
+                        </button>
+                    </td>
+                </tr>`;
+        });
+
+        const descuento = parseFloat(
+            document.getElementById("descuento").value
+        ) || 0;
+
+        document.getElementById("subtotal").textContent =
+            "$" + subtotal.toFixed(2);
+
+        document.getElementById("total").textContent =
+            "$" + Math.max(0, subtotal - descuento).toFixed(2);
+    }
+
+    document.getElementById("descuento").addEventListener(
+        "input", dibujarTabla
+    );
+
+    document.querySelector("form").addEventListener(
+        "submit", function(event) {
+            if (productosVenta.length === 0) {
+                event.preventDefault();
+                alert("Agrega al menos un producto.");
+                return;
+            }
+
+            const subtotal = productosVenta.reduce(
+                (suma, p) => suma + p.precio * p.cantidad, 0
+            );
+
+            const descuento = parseFloat(
+                document.getElementById("descuento").value
+            ) || 0;
+
+            if (descuento < 0 || descuento > subtotal) {
+                event.preventDefault();
+                alert("El descuento no puede superar el subtotal.");
+            }
+        }
+    );
+</script>
+</main>
+</div>
+</body>
+</html>

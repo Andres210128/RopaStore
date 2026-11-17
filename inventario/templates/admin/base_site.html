@@ -1,0 +1,130 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}RopaStore | Administración{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}">Ropa<span>Store</span></a>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    :root {
+        --dark: #172033;
+        --dark2: #293a54;
+        --green: #159879;
+        --mint: #64d8bd;
+        --bg: #f4f6fb;
+        --text: #20283b;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, sans-serif;
+    }
+
+    #header {
+        background: var(--dark);
+        color: white;
+        padding: 18px 28px;
+    }
+
+    #site-name a {
+        color: white;
+        font-size: 25px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    #site-name span { color: var(--mint); }
+
+    #user-tools { color: #d4dbea; }
+    #user-tools a { color: var(--mint); }
+
+    .breadcrumbs {
+        background: var(--dark2);
+        color: white;
+        padding: 14px 25px;
+    }
+
+    .breadcrumbs a { color: var(--mint); }
+
+    #content {
+        padding: 30px;
+        max-width: 1500px;
+        margin: auto;
+    }
+
+    #content h1 {
+        font-size: 28px;
+        margin-bottom: 25px;
+        color: var(--text);
+    }
+
+    .module {
+        background: white;
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px #18243a0a;
+        margin-bottom: 25px;
+    }
+
+    .module caption,
+    .module h2 {
+        background: var(--dark);
+        color: white;
+        padding: 16px;
+    }
+
+    .module th {
+        background: #f4f6fb;
+    }
+
+    .module td, .module th {
+        padding: 14px;
+    }
+
+    .module a {
+        color: var(--green);
+        font-weight: 600;
+    }
+
+    .button,
+    input[type=submit],
+    input[type=button],
+    .submit-row input {
+        background: var(--green) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 10px 17px !important;
+    }
+
+    .object-tools a {
+        background: var(--green) !important;
+        border-radius: 8px;
+    }
+
+    #content-main {
+        width: 100%;
+    }
+
+    .dashboard #content {
+        padding-top: 35px;
+    }
+
+    #footer { padding: 20px; }
+
+    @media(max-width: 767px) {
+        #content { padding: 15px; }
+        #header { padding: 15px; }
+    }
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,19 @@
+<aside>
+    <div class="logo">Ropa<span>Store</span></div>
+
+    <div class="menu-title">Principal</div>
+    <a href="{% url 'dashboard' %}" class="menu-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">▦ &nbsp; Dashboard</a>
+
+    <div class="menu-title">Administración</div>
+    <a href="{% url 'productos' %}" class="menu-link {% if request.resolver_match.url_name == 'productos' %}active{% endif %}">▣ &nbsp; Productos</a>
+    <a href="{% url 'categorias' %}" class="menu-link {% if request.resolver_match.url_name == 'categorias' %}active{% endif %}">▤ &nbsp; Categorías</a>
+    <a href="/admin/" class="menu-link">⚙ &nbsp; Administración</a>
+
+    <div class="menu-title">Operaciones</div>
+    <a href="{% url 'compras' %}" class="menu-link {% if request.resolver_match.url_name == 'compras' %}active{% endif %}">🛒 &nbsp; Compras</a>
+    <a href="{% url 'ventas' %}" class="menu-link {% if request.resolver_match.url_name == 'ventas' %}active{% endif %}">💳 &nbsp; Ventas</a>
+    <a href="{% url 'proveedores' %}" class="menu-link {% if request.resolver_match.url_name == 'proveedores' %}active{% endif %}">🏭 &nbsp; Proveedores</a>
+
+    <div class="menu-title">Análisis</div>
+    <a href="{% url 'estadisticas' %}" class="menu-link {% if request.resolver_match.url_name == 'estadisticas' %}active{% endif %}">📊 &nbsp; Estadísticas</a>
+</aside>

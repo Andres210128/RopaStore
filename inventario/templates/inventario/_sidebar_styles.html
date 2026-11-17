@@ -1,0 +1,80 @@
+<style>
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .layout > aside {
+        width: 245px;
+        min-width: 245px;
+        background: #172033;
+        color: white;
+        padding: 28px 18px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        overflow-y: auto;
+        z-index: 10;
+    }
+
+    .layout .logo {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 40px;
+    }
+
+    .layout .logo span {
+        color: #64d8bd;
+    }
+
+    .layout .menu-title {
+        color: #8994aa;
+        font-size: 11px;
+        margin: 25px 12px 12px;
+        text-transform: uppercase;
+    }
+
+    .layout > aside a {
+        display: block;
+        color: #d4dbea;
+        text-decoration: none;
+        padding: 13px 14px;
+        border-radius: 8px;
+        margin: 5px 0;
+        transition: .2s;
+    }
+
+    .layout > aside a.active,
+    .layout > aside a:hover {
+        background: #293a54;
+        color: #64d8bd;
+    }
+
+    .layout > .main-area {
+        margin-left: 245px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    @media(max-width: 700px) {
+        .layout {
+            display: block;
+        }
+
+        .layout > aside {
+            position: relative;
+            width: 100%;
+            min-width: 0;
+            padding: 18px;
+        }
+
+        .layout .logo {
+            margin-bottom: 15px;
+        }
+
+        .layout > .main-area {
+            margin-left: 0;
+        }
+    }
+</style>

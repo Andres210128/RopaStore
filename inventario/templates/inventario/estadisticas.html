@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RopaStore | Estadísticas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6fb; color: #20283b; }
+        .layout { display: flex; min-height: 100vh; }
+        aside { width: 245px; background: #172033; color: white; padding: 28px 18px; flex-shrink: 0; }
+        .logo { font-size: 25px; font-weight: bold; margin-bottom: 40px; }
+        .logo span { color: #64d8bd; }
+        .menu-title { color: #8994aa; font-size: 11px; margin: 25px 12px 12px; text-transform: uppercase; }
+        aside a { display: block; color: #d4dbea; text-decoration: none; padding: 13px 14px; border-radius: 8px; margin: 5px 0; }
+        aside a.active, aside a:hover { background: #293a54; color: #64d8bd; }
+        main { flex: 1; padding: 32px; min-width: 0; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; gap: 15px; }
+        header h1 { font-size: 27px; }
+        .subtitle { color: #7d8798; margin-top: 7px; }
+        .user { background: white; padding: 12px 18px; border-radius: 10px; font-weight: bold; }
+        .filters { background: white; padding: 20px; border-radius: 14px; margin-bottom: 22px; display: flex; gap: 15px; align-items: end; flex-wrap: wrap; }
+        .filters label { display: block; color: #7d8798; font-size: 13px; margin-bottom: 7px; }
+        .filters input { padding: 11px; border: 1px solid #dce1ea; border-radius: 8px; }
+        .btn { display: inline-block; padding: 12px 17px; border-radius: 8px; background: #172f4d; color: white; text-decoration: none; border: none; cursor: pointer; }
+        .btn.green { background: #159879; }
+        .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 25px; }
+        .card, .panel { background: white; border-radius: 14px; padding: 23px; box-shadow: 0 3px 15px #18243a0a; }
+        .card p { color: #7d8798; font-size: 14px; }
+        .card h2 { font-size: 27px; margin-top: 15px; }
+        .symbol { font-size: 23px; margin-bottom: 13px; }
+        .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 22px; }
+        .panel h2 { font-size: 19px; margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 13px 10px; text-align: left; border-bottom: 1px solid #edf0f5; font-size: 14px; }
+        th { color: #7d8798; }
+        .warning { color: #d97706; font-weight: bold; }
+        .empty { color: #7d8798; padding: 15px 0; }
+        .messages { margin-bottom: 15px; color: #b45309; }
+        @media(max-width: 1000px) {
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            .columns { grid-template-columns: 1fr; }
+            aside { width: 200px; }
+        }
+        @media(max-width: 600px) {
+            .layout { display: block; }
+            aside { width: 100%; padding: 18px; }
+            .logo { margin-bottom: 15px; }
+            main { padding: 20px 14px; }
+            .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .card { padding: 15px; }
+            .card h2 { font-size: 22px; }
+            header { align-items: flex-start; flex-direction: column; }
+            .panel { overflow-x: auto; padding: 15px; }
+        }
+    </style>
+    {% include "inventario/_sidebar_styles.html" %}
+</head>
+<body>
+<div class="layout">
+    {% include "inventario/_sidebar.html" %}
+
+    <main class="main-area">
+        <header>
+            <div>
+                <h1>Estadísticas</h1>
+                <p class="subtitle">Resumen financiero y rendimiento de RopaStore.</p>
+            </div>
+            <div class="user">Administrador</div>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="messages">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="GET" class="filters">
+            <div>
+                <label for="desde">Fecha inicial</label>
+                <input type="date" id="desde" name="desde" value="{{ fecha_inicio|date:'Y-m-d' }}">
+            </div>
+            <div>
+                <label for="hasta">Fecha final</label>
+                <input type="date" id="hasta" name="hasta" value="{{ fecha_fin|date:'Y-m-d' }}">
+            </div>
+            <button class="btn green" type="submit">Filtrar</button>
+            <a class="btn" href="{% url 'estadisticas' %}">Este mes</a>
+        </form>
+
+        <section class="cards">
+            <div class="card">
+                <div class="symbol">💰</div>
+                <p>Ingresos por ventas</p>
+                <h2>${{ ingresos|floatformat:2 }}</h2>
+            </div>
+            <div class="card">
+                <div class="symbol">🛒</div>
+                <p>Compras registradas</p>
+                <h2>${{ gastos|floatformat:2 }}</h2>
+            </div>
+            <div class="card">
+                <div class="symbol">📈</div>
+                <p>Ganancia bruta estimada</p>
+                <h2>${{ ganancia_bruta|floatformat:2 }}</h2>
+            </div>
+            <div class="card">
+                <div class="symbol">📦</div>
+                <p>Unidades vendidas</p>
+                <h2>{{ cantidad_vendida }}</h2>
+            </div>
+        </section>
+
+        <section class="columns">
+            <div class="panel">
+                <h2>🏆 Productos más vendidos</h2>
+                <table>
+                    <thead>
+                        <tr><th>Producto</th><th>Unidades</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_mas_vendidos %}
+                        <tr>
+                            <td>{{ producto.producto__nombre }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="empty">No hay ventas en este período.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>⚠️ Productos con stock bajo</h2>
+                <table>
+                    <thead>
+                        <tr><th>Producto</th><th>Stock</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_stock_bajo %}
+                        <tr>
+                            <td>{{ producto.nombre }}</td>
+                            <td class="warning">{{ producto.stock }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="empty">No hay productos con stock bajo.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="columns">
+            <div class="panel">
+                <h2>📊 Ingresos mensuales</h2>
+                <table>
+                    <thead><tr><th>Mes</th><th>Ingresos</th></tr></thead>
+                    <tbody>
+                        {% for registro in ventas_mensuales %}
+                        <tr>
+                            <td>{{ registro.mes|date:"F Y" }}</td>
+                            <td>${{ registro.total|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="empty">No hay ingresos registrados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>🛍️ Compras mensuales</h2>
+                <table>
+                    <thead><tr><th>Mes</th><th>Compras</th></tr></thead>
+                    <tbody>
+                        {% for registro in compras_mensuales %}
+                        <tr>
+                            <td>{{ registro.mes|date:"F Y" }}</td>
+                            <td>${{ registro.total|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="empty">No hay compras registradas.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

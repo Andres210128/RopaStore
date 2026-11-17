@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proveedores - RopaStore</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .tarjeta {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        }
+
+        .tarjeta p {
+            color: #777;
+            margin: 0 0 10px;
+        }
+
+        .tarjeta h2 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .tabla-contenedor {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .estado {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .activo {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .inactivo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .editar {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .vacio {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        .mensaje {
+            background: #dcfce7;
+            color: #166534;
+            padding: 13px;
+            border-radius: 7px;
+            margin-bottom: 18px;
+        }
+
+        @media(max-width: 650px) {
+            body {
+                padding: 15px;
+            }
+
+            .tarjetas {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    {% include "inventario/_sidebar_styles.html" %}
+</head>
+
+<body>
+
+<div class="layout">
+{% include "inventario/_sidebar.html" %}
+<main class="main-area">
+<div class="container">
+
+    <div class="encabezado">
+        <div>
+            <h1>Proveedores</h1>
+            <p>Administra los proveedores de RopaStore.</p>
+        </div>
+
+        <a href="{% url 'crear_proveedor' %}" class="btn">
+            + Nuevo proveedor
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mensaje">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="tarjetas">
+
+        <div class="tarjeta">
+            <p>Total de proveedores</p>
+            <h2>{{ total_proveedores }}</h2>
+        </div>
+
+        <div class="tarjeta">
+            <p>Proveedores activos</p>
+            <h2>{{ proveedores_activos }}</h2>
+        </div>
+
+    </div>
+
+    <div class="tabla-contenedor">
+
+        <h2>Directorio de proveedores</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for proveedor in proveedores %}
+                    <tr>
+                        <td><strong>{{ proveedor.nombre }}</strong></td>
+                        <td>{{ proveedor.contacto|default:"-" }}</td>
+                        <td>{{ proveedor.telefono|default:"-" }}</td>
+                        <td>{{ proveedor.correo|default:"-" }}</td>
+                        <td>{{ proveedor.direccion|default:"-" }}</td>
+
+                        <td>
+                            {% if proveedor.activo %}
+                                <span class="estado activo">Activo</span>
+                            {% else %}
+                                <span class="estado inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a
+                                href="{% url 'editar_proveedor' proveedor.id %}"
+                                class="editar"
+                            >
+                                Editar
+                            </a>
+                        </td>
+                    </tr>
+
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="vacio">
+                            Todavía no existen proveedores registrados.
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+</main>
+</div>
+</body>
+</html>
+

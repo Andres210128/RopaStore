@@ -1,0 +1,137 @@
+
+{% extends "inventario/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Panel de control{% endblock %}
+
+{% block content %}
+
+<style>
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 17px;
+        border-radius: 8px;
+        background: #172f4d;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn.green { background: #159879; }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .card, .panel {
+        background: white;
+        border-radius: 14px;
+        padding: 23px;
+        box-shadow: 0 3px 15px #18243a0a;
+    }
+
+    .card p { color: #7d8798; font-size: 14px; }
+    .card h2 { font-size: 30px; margin-top: 15px; }
+    .symbol { font-size: 23px; margin-bottom: 15px; }
+    .panel h2 { font-size: 19px; margin-bottom: 20px; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th, td {
+        padding: 14px 10px;
+        text-align: left;
+        border-bottom: 1px solid #edf0f5;
+        font-size: 14px;
+    }
+
+    th { color: #7d8798; }
+    .stock { color: #d97706; font-weight: bold; }
+
+    @media(max-width: 950px) {
+        .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media(max-width: 600px) {
+        .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { padding: 15px; }
+        .card h2 { font-size: 24px; }
+        .panel { overflow-x: auto; padding: 15px; }
+    }
+</style>
+
+<div class="actions">
+    <a class="btn green" href="{% url 'crear_producto' %}">+ Nuevo producto</a>
+    <a class="btn" href="{% url 'crear_categoria' %}">+ Nueva categoría</a>
+</div>
+
+<section class="cards">
+    <div class="card">
+        <div class="symbol">👕</div>
+        <p>Productos activos</p>
+        <h2>{{ total_productos }}</h2>
+    </div>
+
+    <div class="card">
+        <div class="symbol">📦</div>
+        <p>Unidades disponibles</p>
+        <h2>{{ total_unidades }}</h2>
+    </div>
+
+    <div class="card">
+        <div class="symbol">🏷️</div>
+        <p>Categorías</p>
+        <h2>{{ total_categorias }}</h2>
+    </div>
+
+    <div class="card">
+        <div class="symbol">⚠️</div>
+        <p>Productos con stock bajo</p>
+        <h2>{{ stock_bajo }}</h2>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Productos recientes</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Stock</th>
+                <th>Precio sugerido</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for producto in ultimos_productos %}
+            <tr>
+                <td>{{ producto.codigo }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.categoria.nombre }}</td>
+                <td class="{% if producto.stock <= 5 %}stock{% endif %}">
+                    {{ producto.stock }}
+                </td>
+                <td>${{ producto.precio_sugerido }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Todavía no hay productos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}
