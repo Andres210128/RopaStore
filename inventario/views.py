@@ -1,6 +1,7 @@
 ﻿# Prueba de sincronizacion con GitHub
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.db.models import Q, Sum, Count, F, DecimalField, ExpressionWrapper
@@ -16,6 +17,7 @@ from .forms import (
     ProductoForm, CategoriaForm, CompraForm, ProveedorForm
 )
 
+@login_required
 def dashboard(request):
     productos = Producto.objects.filter(activo=True)
 
@@ -30,6 +32,7 @@ def dashboard(request):
     return render(request, "inventario/dashboard.html", contexto)
 
 
+@login_required
 def lista_productos(request):
     busqueda = request.GET.get("q", "").strip()
     categoria_id = request.GET.get("categoria", "").strip()
@@ -65,6 +68,7 @@ def lista_productos(request):
 
     return render(request, "inventario/productos.html", contexto)
 
+@login_required
 def crear_producto(request):
     if request.method == "POST":
         formulario = ProductoForm(request.POST, request.FILES)
@@ -82,6 +86,7 @@ def crear_producto(request):
     })
 
 
+@login_required
 def editar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
 
@@ -103,6 +108,7 @@ def editar_producto(request, pk):
     })
 
 
+@login_required
 @require_POST
 def eliminar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
@@ -111,6 +117,7 @@ def eliminar_producto(request, pk):
     return redirect("productos")
 
 
+@login_required
 def lista_categorias(request):
     busqueda = request.GET.get("q", "").strip()
 
@@ -135,6 +142,7 @@ def lista_categorias(request):
     )
 
 
+@login_required
 def crear_categoria(request):
     if request.method == "POST":
         formulario = CategoriaForm(request.POST)
@@ -155,6 +163,7 @@ def crear_categoria(request):
     })
 
 
+@login_required
 def editar_categoria(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
 
@@ -180,6 +189,7 @@ def editar_categoria(request, pk):
     })
 
 
+@login_required
 @require_POST
 def eliminar_categoria(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
@@ -198,6 +208,7 @@ def eliminar_categoria(request, pk):
 
     return redirect("categorias")
 
+@login_required
 def nueva_venta(request):
     productos = Producto.objects.filter(
         activo=True,
@@ -339,6 +350,7 @@ def nueva_venta(request):
     )
 
 
+@login_required
 def lista_ventas(request):
     ventas = Venta.objects.prefetch_related(
         "detalles__producto"
@@ -359,6 +371,7 @@ def lista_ventas(request):
         contexto
     )
 
+@login_required
 def nueva_compra(request):
     productos = Producto.objects.filter(
         activo=True
@@ -471,6 +484,7 @@ def nueva_compra(request):
     )
 
 
+@login_required
 def lista_compras(request):
     compras = Compra.objects.prefetch_related(
         "detalles__producto"
@@ -491,6 +505,7 @@ def lista_compras(request):
         contexto
     )
 
+@login_required
 def lista_proveedores(request):
     proveedores = Proveedor.objects.all().order_by("nombre")
 
@@ -507,6 +522,7 @@ def lista_proveedores(request):
     )
 
 
+@login_required
 def crear_proveedor(request):
     formulario = ProveedorForm(request.POST or None)
 
@@ -528,6 +544,7 @@ def crear_proveedor(request):
     )
 
 
+@login_required
 def editar_proveedor(request, pk):
     proveedor = get_object_or_404(Proveedor, pk=pk)
 
@@ -556,6 +573,7 @@ def editar_proveedor(request, pk):
         }
     )
 
+@login_required
 def estadisticas(request):
     hoy = timezone.localdate()
 

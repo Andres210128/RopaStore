@@ -16,4 +16,11 @@
 
     <div class="menu-title">Análisis</div>
     <a href="{% url 'estadisticas' %}" class="menu-link {% if request.resolver_match.url_name == 'estadisticas' %}active{% endif %}">📊 &nbsp; Estadísticas</a>
+
+    <div class="menu-title">Sesión</div>
+    <div class="session-user">{{ request.user.get_username }}</div>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit">Cerrar sesión</button>
+    </form>
 </aside>
